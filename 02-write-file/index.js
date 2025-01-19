@@ -16,7 +16,7 @@ rl.on('line', (line) => {
     rl.close();
     return;
   }
-  writableStream.write(line, 'utf8');
+  writableStream.write(line + '\n', 'utf8');
 });
 
 rl.on('close', () => {
