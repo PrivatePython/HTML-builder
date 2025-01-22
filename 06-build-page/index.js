@@ -77,9 +77,6 @@ function buildStyles() {
           const pathFileCss = path.join(directObject.path, directObject.name);
           await readFile(pathFileCss).then((data) => {
             writableStream.write(`${data}${isLastChunk ? '' : '\n'}`);
-            if (isLastChunk) {
-              writableStream.close();
-            }
           });
         });
     })
