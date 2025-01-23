@@ -52,10 +52,9 @@ function createNewFolder(folderPath, folderName) {
 }
 
 copyDir()
-  .then((r) => {
-    buildStyles();
-    replaceTemplate().then();
-    return r;
+  .then(async () => {
+    await buildStyles();
+    await replaceTemplate();
   })
   .catch((e) => console.error(e));
 
@@ -87,29 +86,25 @@ async function replaceTemplate() {
   const templatePath = path.join(__dirname, 'template.html');
   const componentsPath = path.join(__dirname, 'components');
   let templateHtml = await readFile(templatePath, 'utf8');
-  await readdir(componentsPath, {
+  const direntObjects = await readdir(componentsPath, {
     recursive: true,
     withFileTypes: true,
-  }).then((arrayDirectObjects) => {
-    const arrayHtmlDirectObjects = arrayDirectObjects.filter((directObject) => {
-      return directObject.name.slice(-5) === '.html';
-    });
-    arrayHtmlDirectObjects.forEach(async (htmlDirectObject, index, arr) => {
-      const nameTemplate = htmlDirectObject.name.replace('.html', '');
-      const templateString = await readFile(
-        path.join(htmlDirectObject.path, htmlDirectObject.name),
-        'utf8',
-      );
-      templateHtml = templateHtml.replaceAll(
-        `{{${nameTemplate}}}`,
-        templateString,
-      );
-      if (index === arr.length - 1) {
-        await writeFile(
-          path.join(__dirname, 'project-dist', 'index.html'),
-          templateHtml,
-        );
-      }
-    });
   });
+  for (const htmlDirectObject of direntObjects.filter((directObject) => {
+    return directObject.name.slice(-5) === '.html';
+  })) {
+    const nameTemplate = htmlDirectObject.name.replace('.html', '');
+    const templateString = await readFile(
+      path.join(htmlDirectObject.path, htmlDirectObject.name),
+      'utf8',
+    );
+    templateHtml = templateHtml.replaceAll(
+      `{{${nameTemplate}}}`,
+      templateString,
+    );
+  }
+  await writeFile(
+    path.join(__dirname, 'project-dist', 'index.html'),
+    templateHtml,
+  );
 }
